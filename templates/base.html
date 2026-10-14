@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ClassPulse{% endblock %} · ClassPulse</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% if current_user %}app-body{% else %}auth-body{% endif %}">
+{% if current_user %}
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark"><i class="bi bi-activity"></i></span><span>ClassPulse<small>Learning, measured.</small></span></a>
+    <div class="nav-label">WORKSPACE</div>
+    {% set role=current_user.role %}
+    <nav class="side-nav">
+      {% if role=='admin' %}
+      <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint=='admin_dashboard' else '' }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+      <a href="{{ url_for('admin_students') }}"><i class="bi bi-people"></i> Students</a><a href="{{ url_for('admin_teams') }}"><i class="bi bi-diagram-3"></i> Teams</a>
+      <a href="{{ url_for('admin_activities') }}"><i class="bi bi-journal-check"></i> Activities</a><a href="{{ url_for('admin_assignments') }}"><i class="bi bi-send"></i> Assign Activities</a>
+      <a href="{{ url_for('admin_evaluations') }}"><i class="bi bi-clipboard2-check"></i> Evaluations</a><a href="{{ url_for('admin_analytics') }}"><i class="bi bi-bar-chart"></i> Analytics</a>
+      <a href="{{ url_for('admin_recommendations') }}"><i class="bi bi-lightbulb"></i> Recommendations</a><a href="{{ url_for('admin_reports') }}"><i class="bi bi-file-earmark-spreadsheet"></i> Reports</a>
+      {% elif role=='student' %}
+      <a href="{{ url_for('student_dashboard') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a><a href="{{ url_for('student_activities') }}"><i class="bi bi-journal-check"></i> My Activities</a>
+      <a href="{{ url_for('student_team_activities') }}"><i class="bi bi-people"></i> Team Activities</a><a href="{{ url_for('student_history') }}"><i class="bi bi-clock-history"></i> Activity History</a>
+      <a href="{{ url_for('student_performance') }}"><i class="bi bi-graph-up"></i> My Performance</a><a href="{{ url_for('student_recommendations') }}"><i class="bi bi-lightbulb"></i> Recommendations</a>
+      {% else %}
+      <a href="{{ url_for('team_dashboard') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a><a href="{{ url_for('team_members_page') }}"><i class="bi bi-people"></i> Team Members</a>
+      <a href="{{ url_for('team_activities') }}"><i class="bi bi-journal-check"></i> Assigned Activities</a><a href="{{ url_for('team_history') }}"><i class="bi bi-clock-history"></i> Activity History</a>
+      <a href="{{ url_for('team_performance') }}"><i class="bi bi-graph-up"></i> Team Performance</a><a href="{{ url_for('team_recommendations') }}"><i class="bi bi-lightbulb"></i> Recommendations</a>
+      {% endif %}
+    </nav>
+    <div class="sidebar-bottom"><div class="help-card"><i class="bi bi-stars"></i><strong>Keep improving</strong><span>Small steps build strong skills.</span></div><div class="side-user"><span class="avatar">{{ current_user.login_id[:1]|upper }}</span><div><strong>{{ current_user.login_id }}</strong><small>{{ role|title }} account</small></div></div></div>
+  </aside>
+  <main class="main-area">
+    <header class="topbar"><button class="icon-button mobile-menu" id="menuToggle" aria-label="Toggle navigation"><i class="bi bi-list"></i></button><div class="crumb">Workspace <i class="bi bi-chevron-right"></i> <span>{% block breadcrumb %}Dashboard{% endblock %}</span></div>
+      <div class="top-actions"><a class="icon-button notification-button" href="{{ url_for('notifications_page') }}" aria-label="Notifications"><i class="bi bi-bell"></i></a><div class="top-user"><span class="avatar avatar-small">{{ current_user.login_id[:1]|upper }}</span><span>{{ current_user.login_id }}</span></div><a class="btn btn-sm btn-outline-secondary" href="{{ url_for('change_password') }}"><i class="bi bi-key"></i> Change password</a><form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-sm btn-outline-secondary logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</button></form></div>
+    </header>
+    <div class="page-content">
+      {% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-stack">{% for category,message in messages %}<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}</div>{% endif %}{% endwith %}
+      {% block content %}{% endblock %}
+    </div><footer class="page-footer">© {{ current_year }} ClassPulse <span>Developed by Team 10</span></footer>
+  </main>
+</div>
+{% else %}
+{% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}<div class="auth-flashes">{% for category,message in messages %}<div class="alert alert-{{ category }} alert-dismissible fade show">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}</div>{% endif %}{% endwith %}{% block auth_content %}{% endblock %}
+{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script><script src="{{ url_for('static',filename='js/app.js') }}"></script>{% block scripts %}{% endblock %}
+</body></html>
