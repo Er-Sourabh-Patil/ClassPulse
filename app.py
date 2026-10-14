@@ -672,6 +672,7 @@ def not_found(_): return render_template('error.html',code=404,message='The page
 @app.errorhandler(400)
 def bad_request(err): return render_template('error.html',code=400,message=getattr(err,'description','Invalid request.')),400
 
+
 if __name__ == '__main__':
     app.run(
         debug=os.environ.get('FLASK_DEBUG', '0') == '1',
